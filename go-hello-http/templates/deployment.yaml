@@ -2,37 +2,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-kubernetes-component
+  name: go-hello-http
   labels:
-    app: my-kubernetes-component
-    backstage.io/kubernetes-id: my-kubernetes-component
+    app: go-hello-http
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      app: my-kubernetes-component
+      app: go-hello-http
   template:
     metadata:
       labels:
-        app: my-kubernetes-component
-        backstage.io/kubernetes-id: my-kubernetes-component
+        app: go-hello-http
+        backstage.io/kubernetes-id: go-hello-http
     spec:
       containers:
-      - name: my-kubernetes-component
-        {{ if .Values.image }}
-        image: "ironcore864/go-hello-http:{{ .Values.image.tag }}"
-        {{ else }}
-        image: "ironcore864/go-hello-http:{{ .Chart.AppVersion }}"
-        {{ end }}
-        resources:
-          limits:
-            cpu: 250m
-            memory: 128Mi
-          requests:
-            cpu: 250m
-            memory: 128Mi
-        envFrom:
-        - secretRef:
-            name: mysecret
-        ports:
-        - containerPort: 8080
+        - name: go-hello-http
+          image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
+          resources:
+            limits:
+              cpu: 250m
+              memory: 128Mi
+            requests:
+              cpu: 250m
+              memory: 128Mi
+          ports:
+            - containerPort: 8080
