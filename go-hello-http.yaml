@@ -1,22 +1,31 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
-  name: argocd
-  namespace: argocd
+  name: go-hello-http
 spec:
-  destination:
-    namespace: default
-    server: https://kubernetes.default.svc
-  project: default
-  source:
-    helm:
-      valueFiles:
-        - values.yaml
-    path: go-hello-http
-    repoURL: https://github.com/ironcore864/gitops-argocd
-    targetRevision: HEAD
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+  generators:
+    - list:
+        elements:
+          - namespace: prod
+          - namespace: stage
+  goTemplate: true
+  template:
+    metadata:
+      name: "{{ .namespace }}-go-hello-world"
+    spec:
+      project: default
+      source:
+        helm:
+          valueFiles:
+            - values.yaml
+        path: go-hello-http
+        repoURL: https://github.com/ironcore864/gitops-argocd
+        targetRevision: HEAD
+      destination:
+        namespace: "{{ .namespace }}"
+        server: https://kubernetes.default.svc
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
