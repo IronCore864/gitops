@@ -1,31 +1,24 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
+kind: Application
 metadata:
-  name: go-hello-http
+  name: tiexin-test
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: ironcore864/go-hello-http:0.0.X
+    argocd-image-updater.argoproj.io/write-back-method: git
 spec:
-  generators:
-    - list:
-        elements:
-          - namespace: prod
-          - namespace: stage
-  goTemplate: true
-  template:
-    metadata:
-      name: "{{ .namespace }}-go-hello-world"
-    spec:
-      project: default
-      source:
-        helm:
-          valueFiles:
-            - values.yaml
-        path: go-hello-http
-        repoURL: https://github.com/ironcore864/gitops-argocd
-        targetRevision: HEAD
-      destination:
-        namespace: "{{ .namespace }}"
-        server: https://kubernetes.default.svc
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
+  project: default
+  source:
+    repoURL: https://github.com/ironcoreworks/gitops
+    targetRevision: main
+    path: go-hello-http
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tiexin-test
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
